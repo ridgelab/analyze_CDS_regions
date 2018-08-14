@@ -13,6 +13,7 @@ import sys
 import argparse
 import gzip
 import os
+import subprocess
 
 
 def parseArgs():
@@ -38,16 +39,17 @@ def parseArgs():
 
 def readInputFiles(args):
 	output = sys.stdout
-
+	outputFileName= args.output
 	if args.output:
 		if args.output_gzip:
-			if args.output.endswith(".gz") or args.output.endswith(".gzip"):
-				output = gzip.open(args.output,'w')
+			if outputFileName.endswith(".gz") or outputFileName.endswith(".gzip"):
+				output = gzip.open(outputFileName,'w')
 			else:
-				output = gzip.open(args.output + ".gz",'w')
+				outputFileName += ".gz"
+				output = gzip.open(outputFileName,'w')
 
 		else:
-			output = open(args.output,'w')
+			output = open(outputFileName,'w')
 	for path, subdirs, files in os.walk(args.inputDir):
 		for name in files:
 			file_path = os.path.join(path,name)
@@ -71,7 +73,6 @@ def readInputFiles(args):
 					header=header.strip()
 				if header == "":
 					break
-				print (header)
 				seq = inputFile.readline()
 				if isinstance(seq,bytes):
 					seq=seq.decode('UTF-8').strip()
@@ -97,6 +98,18 @@ def readInputFiles(args):
 				else:
 					output.write("\t".join(outputParams) + "\n")
 			inputFile.close()
+	output.flush()
+	output.close()
+	if args.output:
+		while not os.path.exists(outputFileName):
+			pass
+		if args.output_gzip:
+			#zcat lolol.gz | sort -k1 -k2 -k3 | gzip > lolol2.gz ; mv lolol2.gz lolol.gz
+			subprocess.Popen("zcat " + outputFileName + " | sort -k1 -k2 -k3 | gzip > " + outputFileName + "_123456" + "; mv " + outputFileName + "_123456 " + outputFileName, shell=True)
+		else:
+			#subprocess.Popen("zcat " + outputFileName + " | sort -k1 -k2 -k3 | gzip > " + outputFileName + "_123456" + "; mv " + outputFileName + "_123456 " + outputFileName, shell=True)
+			subprocess.Popen("sort -o " + outputFileName + " -k1 -k2 -k3 " + outputFileName,shell=True)
+			
 
 
 if __name__ =='__main__':
