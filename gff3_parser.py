@@ -3,6 +3,9 @@ import sys
 import gzip
 import argparse
 from Bio.Seq import Seq
+
+##GFF3 and FASTA files can be found here: https://www.ncbi.nlm.nih.gov/genome/guide/human/
+
 #from multiprocessing import Process, current_process, freeze_support, Pool
 #Multiproccessing is not necessary because the program is fast. 
 #However, if it were to be implemented, the commented out lines would probably be necessary.
@@ -128,7 +131,7 @@ def readFasta(fasta):
             elif line.count('\t')>=2:
                 lastHeader = line.split("\t")[0][1:]
             else:
-                lastHeader= line[1:].strip()[1:]
+                lastHeader= line[1:].strip()
             sequenceLine = ""
             continue
         sequenceLine +=line.strip()
